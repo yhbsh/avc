@@ -1,5 +1,2 @@
-encode
-render
-decode
+bin/
 video.h264
-.cache/
