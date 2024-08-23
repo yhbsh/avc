@@ -1,9 +1,9 @@
-#include <libavdevice/avdevice.h>
 #include <libavcodec/avcodec.h>
+#include <libavdevice/avdevice.h>
 #include <libavformat/avformat.h>
 #include <libavutil/opt.h>
-#include <libavutil/time.h>
 #include <libavutil/pixdesc.h>
+#include <libavutil/time.h>
 
 #include <stdio.h>
 
@@ -13,11 +13,11 @@ static AVBufferRef *hw_device_ctx = NULL;
 static enum AVPixelFormat get_hw_format(AVCodecContext *ctx, const enum AVPixelFormat *pix_fmts) {
     const enum AVPixelFormat *p;
 
-    for (p = pix_fmts; *p != -1; p++) if (*p == hw_pix_fmt) return *p;
+    for (p = pix_fmts; *p != -1; p++)
+        if (*p == hw_pix_fmt) return *p;
 
     return AV_PIX_FMT_NONE;
 }
-
 
 int main(int argc, const char *argv[]) {
     if (argc != 2) {
@@ -35,8 +35,8 @@ int main(int argc, const char *argv[]) {
     int vstream = av_find_best_stream(in_fmt_ctx, AVMEDIA_TYPE_VIDEO, -1, -1, &vcodec, 0);
     int astream = av_find_best_stream(in_fmt_ctx, AVMEDIA_TYPE_AUDIO, -1, -1, &acodec, 0);
 
-    printf("vcodec: %s\n",  vcodec->long_name);
-    printf("acodec: %s\n",  acodec->long_name);
+    printf("vcodec: %s\n", vcodec->long_name);
+    printf("acodec: %s\n", acodec->long_name);
 
     AVCodecContext *vcodec_ctx = avcodec_alloc_context3(vcodec);
     AVCodecContext *acodec_ctx = avcodec_alloc_context3(acodec);
@@ -47,13 +47,13 @@ int main(int argc, const char *argv[]) {
     ret = avcodec_open2(vcodec_ctx, vcodec, NULL);
     ret = avcodec_open2(acodec_ctx, acodec, NULL);
 
-    AVPacket *packet = av_packet_alloc();
-    AVFrame  *frame  = av_frame_alloc();
-    AVFrame  *sw_frame  = av_frame_alloc();
+    AVPacket *packet  = av_packet_alloc();
+    AVFrame *frame    = av_frame_alloc();
+    AVFrame *sw_frame = av_frame_alloc();
 
     enum AVHWDeviceType type = AV_HWDEVICE_TYPE_VIDEOTOOLBOX;
 
-    for (int i = 0; ;i++) {
+    for (int i = 0;; i++) {
         const AVCodecHWConfig *config = avcodec_get_hw_config(vcodec, i);
         if (!config) return 1;
 
@@ -72,7 +72,6 @@ int main(int argc, const char *argv[]) {
     do {
         ret = av_read_frame(in_fmt_ctx, packet);
         if (ret == AVERROR_EOF) break;
-
 
         int64_t now = av_gettime_relative() - begin;
 

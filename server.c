@@ -17,17 +17,17 @@ int main(void) {
     };
     int addrlen = sizeof(addr);
 
-    int  ret = bind(s_fd, (struct sockaddr *) &addr, sizeof(addr));
+    int ret = bind(s_fd, (struct sockaddr *)&addr, sizeof(addr));
     char buffer[BUFFER_SIZE];
 
     while (1) {
-        ssize_t recv = recvfrom(s_fd, buffer, BUFFER_SIZE, 0, (struct sockaddr *) &addr, (socklen_t *) &addrlen);
+        ssize_t recv = recvfrom(s_fd, buffer, BUFFER_SIZE, 0, (struct sockaddr *)&addr, (socklen_t *)&addrlen);
         if (recv > 0) {
             buffer[recv] = '\0';
             printf("Received message: %s\n", buffer);
 
             const char *reply = "Message received";
-            sendto(s_fd, reply, strlen(reply), 0, (struct sockaddr *) &addr, addrlen);
+            sendto(s_fd, reply, strlen(reply), 0, (struct sockaddr *)&addr, addrlen);
         }
     }
 

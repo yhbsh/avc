@@ -33,7 +33,7 @@ const char *frag_source = "#version 410\n"
                           "    float b = y + (1.770 * cb);\n"
                           "    fragColor = vec4(r, g, b, 1.0);\n"
                           "}\n";
-void glfw_key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+void glfw_key_callback(GLFWwindow *window, int key, int scancode, int action, int mods) {
     if (key == GLFW_KEY_Q) {
         glfwSetWindowShouldClose(window, GLFW_TRUE);
     }
@@ -47,15 +47,15 @@ int main(int argc, char *argv[]) {
 
     int ret;
 
-    uint8_t  in_buf[BUFFER_SIZE + AV_INPUT_BUFFER_PADDING_SIZE];
+    uint8_t in_buf[BUFFER_SIZE + AV_INPUT_BUFFER_PADDING_SIZE];
     uint8_t *data;
-    size_t   data_size;
+    size_t data_size;
 
-    const AVCodec        *codec;
+    const AVCodec *codec;
     AVCodecParserContext *parser_context;
-    AVCodecContext       *codec_context;
-    AVFrame              *frame;
-    AVPacket             *packet;
+    AVCodecContext *codec_context;
+    AVFrame *frame;
+    AVPacket *packet;
 
     FILE *file;
 
