@@ -25,8 +25,8 @@ int main(void) {
 
     int ret = avformat_open_input(&in_fmt_ctx, "file.mp4", NULL, NULL);
 
-    const AVCodec *vcodec = NULL;
-    const AVCodec *acodec = NULL;
+    AVCodec *vcodec = NULL;
+    AVCodec *acodec = NULL;
 
     int vstream = av_find_best_stream(in_fmt_ctx, AVMEDIA_TYPE_VIDEO, -1, -1, &vcodec, 0);
     int astream = av_find_best_stream(in_fmt_ctx, AVMEDIA_TYPE_AUDIO, -1, -1, &acodec, 0);

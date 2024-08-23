@@ -119,11 +119,11 @@ int main(int argc, char *argv[]) {
     glBufferData(GL_ARRAY_BUFFER, 16 * sizeof(GLfloat), vertices, GL_STATIC_DRAW);
 
     GLuint positionAttrib = glGetAttribLocation(prog, "position");
-    glEnableVertexAttribArray(positionAttrib); 
+    glEnableVertexAttribArray(positionAttrib);
     glVertexAttribPointer(positionAttrib, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (void*)0);
 
     GLuint texCoordAttrib = glGetAttribLocation(prog, "texCoord");
-    glEnableVertexAttribArray(texCoordAttrib); 
+    glEnableVertexAttribArray(texCoordAttrib);
     glVertexAttribPointer(texCoordAttrib, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (GLvoid*)(2 * sizeof(GLfloat)));
 
     glUniform1i(glGetUniformLocation(prog, "textureY" ), 0);
@@ -152,7 +152,7 @@ int main(int argc, char *argv[]) {
                     if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF) break;
 
                     const char *format = av_get_pix_fmt_name(frame->format);
-                    printf("number: %lld - format = %s\n", codec_context->frame_num, format);
+                    printf("number: %d - format = %s\n", codec_context->frame_number, format);
 
                     glClear(GL_COLOR_BUFFER_BIT);
 
