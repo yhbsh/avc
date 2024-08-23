@@ -19,11 +19,15 @@ static enum AVPixelFormat get_hw_format(AVCodecContext *ctx, const enum AVPixelF
 }
 
 
-int main(void) {
+int main(int argc, const char *argv[]) {
+    if (argc != 2) {
+        fprintf(stderr, "[USAGE]: ./decode_ffmpeg <url>\n");
+        return 1;
+    }
     avdevice_register_all();
     AVFormatContext *in_fmt_ctx = avformat_alloc_context();
 
-    int ret = avformat_open_input(&in_fmt_ctx, "file.mp4", NULL, NULL);
+    int ret = avformat_open_input(&in_fmt_ctx, argv[1], NULL, NULL);
 
     AVCodec *vcodec = NULL;
     AVCodec *acodec = NULL;
