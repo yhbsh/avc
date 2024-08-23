@@ -27,8 +27,13 @@ void encode(AVCodecContext *codec_ctx, AVFrame *frame, AVPacket *packet, FILE *f
     }
 }
 
-int main(void) {
-    FILE *file = fopen("video", "wb");
+int main(int argc, const char *argv[1]) {
+    if (argc != 2) {
+        fprintf(stderr, "[USAGE]: ./encoder_ffmpeg <file>\n");
+        return 1;
+    }
+
+    FILE *file = fopen(argv[1], "wb");
 
     const char *codec_name = "h264_videotoolbox";
     const AVCodec *codec   = avcodec_find_encoder_by_name(codec_name);
@@ -58,9 +63,8 @@ int main(void) {
     frame->width   = codec_ctx->width;
     frame->height  = codec_ctx->height;
 
-    ret = av_frame_get_buffer(frame, 0);
-    if (ret < 0) {
-        fprintf(stderr, "[ERROR]: av_frame_get_buffer(frame, 0): %s\n", av_err2str(ret));
+    if ((ret = av_frame_get_buffer(frame, 0)) < 0) {
+        fprintf(stderr, "[ERROR]: cannot allocate frame buffer: %s\n", av_err2str(ret));
         return 1;
     }
 
@@ -69,13 +73,13 @@ int main(void) {
     int nb_frames = 25 * 100;
     for (int i = 0; i < nb_frames; i++) {
         fflush(stdout);
-
         ret = av_frame_make_writable(frame);
+
         for (int y = 0; y < codec_ctx->height; y++) {
             for (int x = 0; x < codec_ctx->width; x++) {
-                frame->data[0][(y >> 0) * frame->linesize[0] + (x >> 0)] = x + y + i * 3;
-                frame->data[1][(y >> 1) * frame->linesize[1] + (x >> 1)] = 128 + (y >> 1) + i * 2;
-                frame->data[2][(y >> 1) * frame->linesize[2] + (x >> 1)] = 064 + (x >> 1) + i * 5;
+                frame->data[0][(y >> 0) * frame->linesize[0] + (x >> 0)] = (uint8_t)((x + y) % 256);     // Y (Luma) component: gradual change across the frame
+                frame->data[1][(y >> 1) * frame->linesize[1] + (x >> 1)] = 128;                          // U (Cb) component: constant 128 (neutral)
+                frame->data[2][(y >> 1) * frame->linesize[2] + (x >> 1)] = (uint8_t)((x + y + i) % 256); // V (Cr) component: gradual change, different from Y
             }
         }
         frame->pts = i;
