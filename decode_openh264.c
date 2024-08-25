@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
+#include <stdbool.h>
 #include <wels/codec_api.h>
 #include <wels/codec_app_def.h>
 #include <wels/codec_def.h>
@@ -12,10 +12,8 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "[USAGE]: ./decode ./video.h264");
         return 1;
     }
-
     int width = 0;
     int height = 0;
-
     SBufferInfo buff_info;
     uint64_t ui_ts = 0;
     int32_t slice_size;
@@ -27,7 +25,6 @@ int main(int argc, char *argv[]) {
     int32_t file_size;
     int32_t frame_count = 0;
     int32_t eof = 0;
-
     ISVCDecoder *decoder = NULL;
     SDecodingParam decoder_params = {0};
     decoder_params.sVideoProperty.size = sizeof(decoder_params.sVideoProperty);
@@ -35,26 +32,22 @@ int main(int argc, char *argv[]) {
     decoder_params.uiTargetDqLayer = (uint8_t)-1;
     decoder_params.eEcActiveIdc = ERROR_CON_SLICE_COPY;
     decoder_params.sVideoProperty.eVideoBsType = VIDEO_BITSTREAM_DEFAULT;
-
     WelsCreateDecoder(&decoder);
-    decoder->SetOption(DECODER_OPTION_ERROR_CON_IDC, &decoder_params.eEcActiveIdc);
-    decoder->Initialize(&decoder_params);
-
+    (*decoder)->SetOption(decoder, DECODER_OPTION_ERROR_CON_IDC, &decoder_params.eEcActiveIdc);
+    (*decoder)->Initialize(decoder, &decoder_params);
     FILE *f = fopen(argv[1], "rb");
     fseek(f, 0L, SEEK_END);
     file_size = (int32_t)ftell(f);
     fseek(f, 0L, SEEK_SET);
     printf("file size: %d\n", file_size);
-
     buff = (uint8_t *)malloc(file_size + 4);
     fread(buff, 1, file_size, f);
     memcpy(buff + file_size, &ui_start_code[0], 4);
-
     while (true) {
         if (buff_pos >= file_size) {
-            eof = true;
+            eof = 1;
             if (eof) {
-                decoder->SetOption(DECODER_OPTION_END_OF_STREAM, (void *)&eof);
+                (*decoder)->SetOption(decoder, DECODER_OPTION_END_OF_STREAM, (void *)&eof);
             }
             break;
         }
@@ -70,37 +63,35 @@ int main(int argc, char *argv[]) {
             buff_pos += slice_size;
             continue;
         }
-
         data[0] = NULL;
         data[1] = NULL;
         data[2] = NULL;
-
         ui_ts++;
         memset(&buff_info, 0, sizeof(SBufferInfo));
-
         buff_info.uiInBsTimeStamp = ui_ts;
-        decoder->DecodeFrameNoDelay(buff + buff_pos, slice_size, data, &buff_info);
-
+        (*decoder)->DecodeFrameNoDelay(decoder, buff + buff_pos, slice_size, data, &buff_info);
         if (buff_info.iBufferStatus == 1) {
             dst[0] = buff_info.pDst[0];
             dst[1] = buff_info.pDst[1];
             dst[2] = buff_info.pDst[2];
         }
-
         if (buff_info.iBufferStatus == 1) {
             width = buff_info.UsrData.sSystemBuffer.iWidth;
             height = buff_info.UsrData.sSystemBuffer.iHeight;
             ++frame_count;
-
             printf("width: %d - height: %d\n", width, height);
         }
-
         buff_pos += slice_size;
     }
-
     printf("-------------------------------------------------------\n");
     printf("width:\t\t%d\nheight:\t\t%d\nframes:\t\t%d\n", width, height, frame_count);
     printf("-------------------------------------------------------\n");
+
+    // Clean up
+    (*decoder)->Uninitialize(decoder);
+    WelsDestroyDecoder(decoder);
+    free(buff);
+    fclose(f);
 
     return 0;
 }
