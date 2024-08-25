@@ -54,7 +54,7 @@ int main(int argc, const char *argv[1]) {
     encoder_ctx->gop_size       = 10;
     encoder_ctx->max_b_frames   = 1;
     encoder_ctx->pix_fmt         = AV_PIX_FMT_YUV420P;
-    encoder_ctx->color_range     = AVCOL_RANGE_JPEG;
+    encoder_ctx->color_range     = AVCOL_RANGE_MPEG;
     encoder_ctx->colorspace      = AVCOL_SPC_BT709;
     encoder_ctx->color_primaries = AVCOL_PRI_BT709;
     encoder_ctx->color_trc       = AVCOL_TRC_BT709;
@@ -68,7 +68,7 @@ int main(int argc, const char *argv[1]) {
     frame->format      = encoder_ctx->pix_fmt;
     frame->width       = encoder_ctx->width;
     frame->height      = encoder_ctx->height;
-    frame->color_range = AVCOL_RANGE_JPEG;
+    frame->color_range = encoder_ctx->color_range;
 
     if ((ret = av_frame_get_buffer(frame, 0)) < 0) {
         fprintf(stderr, "[ERROR]: cannot allocate frame buffer: %s\n", av_err2str(ret));
