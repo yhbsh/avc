@@ -45,14 +45,14 @@ int main(int argc, const char *argv[1]) {
         return 1;
     }
 
-    AVCodecContext *encoder_ctx = avcodec_alloc_context3(encoder);
-    encoder_ctx->bit_rate       = 400000;
-    encoder_ctx->width          = 800;
-    encoder_ctx->height         = 600;
-    encoder_ctx->time_base      = (AVRational){1, 25};
-    encoder_ctx->framerate      = (AVRational){25, 1};
-    encoder_ctx->gop_size       = 10;
-    encoder_ctx->max_b_frames   = 1;
+    AVCodecContext *encoder_ctx  = avcodec_alloc_context3(encoder);
+    encoder_ctx->bit_rate        = 4 * 1000 * 1000;
+    encoder_ctx->width           = 1280;
+    encoder_ctx->height          = 720;
+    encoder_ctx->time_base       = (AVRational){1, 60};
+    encoder_ctx->framerate       = (AVRational){60, 1};
+    encoder_ctx->gop_size        = 0;
+    encoder_ctx->max_b_frames    = 0;
     encoder_ctx->pix_fmt         = AV_PIX_FMT_YUV420P;
     encoder_ctx->color_range     = AVCOL_RANGE_MPEG;
     encoder_ctx->colorspace      = AVCOL_SPC_BT709;
@@ -77,28 +77,36 @@ int main(int argc, const char *argv[1]) {
 
     AVPacket *packet = av_packet_alloc();
 
-    int nb_frames = 100;
+    int nb_frames = 6 * 100;
 
     for (int i = 0; i < nb_frames; i++) {
         fflush(stdout);
         ret = av_frame_make_writable(frame);
+        int x, y;
+        float time = i * 0.005; // Adjust this value to control animation speed
 
-        for (int y = 0; y < frame->height; y++) {
-            for (int x = 0; x < frame->width; x++) {
-                float nx = (float)x / frame->width;
-                float ny = (float)y / frame->height;
+        // Y plane
+        for (y = 0; y < frame->height; y++) {
+            for (x = 0; x < frame->width; x++) {
+                float yValue                               = (float)y / frame->height;
+                float xValue                               = (float)x / frame->width;
+                float wave                                 = sin(yValue * 10 + time) * 0.1; // Creates a horizontal wave effect
+                frame->data[0][y * frame->linesize[0] + x] = (uint8_t)(255 * (yValue + wave));
+            }
+        }
 
-                // Simple moving gradient for Y plane
-                frame->data[0][y * frame->linesize[0] + x] = 128 + 127 * sin((nx + ny + i * 0.001) * M_PI);
+        // Cb and Cr planes
+        for (y = 0; y < frame->height / 2; y++) {
+            for (x = 0; x < frame->width / 2; x++) {
+                float yValue = (float)y / ((float)frame->height / 2);
+                float xValue = (float)x / ((float)frame->width / 2);
 
-                // Simple color pattern for U and V planes
-                if (y % 2 == 0 && x % 2 == 0) {
-                    int uvx = x / 2;
-                    int uvy = y / 2;
+                // Cb (blue-difference)
+                float cbWave                               = cos(xValue * 10 + time) * 0.1; // Creates a vertical wave effect
+                frame->data[1][y * frame->linesize[1] + x] = (uint8_t)(128 + 127 * (xValue + cbWave));
 
-                    frame->data[1][uvy * frame->linesize[1] + uvx] = 128 + 127 * sin(nx * M_PI + i * 0.001);
-                    frame->data[2][uvy * frame->linesize[2] + uvx] = 128 + 127 * sin(ny * M_PI + i * 0.001);
-                }
+                // Cr (red-difference)
+                frame->data[2][y * frame->linesize[2] + x] = 128; // Constant value for simplicity
             }
         }
 
