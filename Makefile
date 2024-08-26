@@ -1,4 +1,4 @@
-CFLAGS   := $(shell pkg-config --cflags libavcodec libavformat libavdevice glfw3 openh264 x264)
+CFLAGS   := -g $(shell pkg-config --cflags libavcodec libavformat libavdevice glfw3 openh264 x264)
 LDFLAGS  := $(shell pkg-config --libs   libavcodec libavformat libavdevice glfw3 openh264 x264) -framework OpenGL
 
 C_SRCS := $(wildcard *.c)
