@@ -22,8 +22,8 @@ int main(int argc, const char *argv[]) {
         return 1;
     }
 
-    AVCodec *vcodec = NULL;
-    AVCodec *acodec = NULL;
+    const AVCodec *vcodec = NULL;
+    const AVCodec *acodec = NULL;
 
     int vstream = av_find_best_stream(in_fmt_ctx, AVMEDIA_TYPE_VIDEO, -1, -1, &vcodec, 0);
     if (vstream < 0) {

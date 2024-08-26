@@ -152,7 +152,7 @@ int main(int argc, char *argv[]) {
                     if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF) break;
 
                     const char *format = av_get_pix_fmt_name(frame->format);
-                    printf("number: %d - format = %s\n", codec_context->frame_number, format);
+                    printf("number: %lld - format = %s\n", codec_context->frame_num, format);
 
                     glClear(GL_COLOR_BUFFER_BIT);
 
