@@ -2,3 +2,4 @@ bin/
 *.h264
 *.hevc
 tags
+compile_commands.json
