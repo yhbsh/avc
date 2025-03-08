@@ -56,6 +56,12 @@ int main(int argc, char **argv) {
     size_t i = 0;
     while (i + 8 <= (size_t)bytes_read) {
         uint32_t atom_size = read_u32_be(buf + i);
+        char atom_type[5] = {0};
+        atom_type[0] = buf[i+4];
+        atom_type[1] = buf[i+5];
+        atom_type[2] = buf[i+6];
+        atom_type[3] = buf[i+7];
+        atom_type[4] = '\0';
 
         if (atom_size == 1) {
             if (i + 16 > (size_t)bytes_read) {
@@ -63,9 +69,9 @@ int main(int argc, char **argv) {
                 break;
             }
             atom_size = read_u64_be(buf + i + 8);
-            printf("Found atom with extended size: %llu\n", (unsigned long long)atom_size);
+            printf("Found atom of type %s with extended size: %llu\n", atom_type, (unsigned long long)atom_size);
         } else {
-            printf("Found atom with size: %u\n", atom_size);
+            printf("Found atom of type %s with size: %u\n", atom_type, atom_size);
         }
 
         if (atom_size < 8) {
